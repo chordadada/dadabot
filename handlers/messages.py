@@ -4,6 +4,7 @@ from generators.text import generate_thought
 from generators.visual import generate_pseudoscience_chart
 from states.user_states import UserState
 from utils.helpers import random_emojis
+from utils.decorators import log_activity
 from aiogram.types import FSInputFile
 import random
 import asyncio

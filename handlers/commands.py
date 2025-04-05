@@ -3,39 +3,26 @@ from aiogram.fsm.context import FSMContext
 from states.user_states import UserState
 from generators.visual import generate_pseudoscience_chart
 from generators.text import generate_thought
+from generators.chemical import generate_iupac_name
 from utils.keyboards import get_main_keyboard, get_ghost_emoji_variants
 from utils.helpers import random_emojis
 from aiogram.types import FSInputFile
+from aiogram.filters import Command
+from utils.decorators import log_activity
 import random
 import asyncio
 
 router = Router()
 user_state = UserState()
 
-@router.message(F.text == "/start")
+@router.message(Command("start"))
 async def cmd_start(message: types.Message, state: FSMContext):
-    # keyboard = [
-        # [types.KeyboardButton(text="ДА"), types.KeyboardButton(text="НЕТ")],
-        # [types.KeyboardButton(text="👻"), types.KeyboardButton(text="Взрыв")],
-        # [types.KeyboardButton(text="Искусство"), types.KeyboardButton(text="Кот Шрёдингера")]
-    # ]
-    # markup = types.ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
-		#Для keyboards2.py
-    # user_state = UserState()
-    # ghost_state = user_state.update_ghost_state()
-    # markup = get_main_keyboard(
-      # ghost_emoji=ghost_state["current_emoji"],
-      # include_ghost=ghost_state["visibility"]
-    # )
 		# Получаем случайный эмодзи для кнопки
     ghost_emoji = random_emojis(1, emoji_set="magic")
     # Создаём клавиатуру (всегда показываем кнопку при /start)
     markup = get_main_keyboard(ghost_emoji=ghost_emoji)
     await message.answer("Вы согласны с тем, что ничего не согласны?", reply_markup=markup)
     print(f"🌀 Пользователь {message.from_user.id} начал квантовый диалог")
-		
-# В обработчике команды /start:
-
 		
 @router.message(F.text == "Кот Шрёдингера")
 async def quantum_cat(message: types.Message):
@@ -67,27 +54,6 @@ async def send_art(message: types.Message):
         await message.answer_photo(media)
     await message.answer("Это стоило 1.2 миллиона евро. Вы не понимаете.")
 
-# @router.message(F.text.in_(get_ghost_emoji_variants()))  # Для keyboards2.py
-# async def ghost_button(message: types.Message):
-    # # 30% шанс полного исчезновения
-    # if random.random() < 0.3:
-        # await message.answer(
-            # "Кнопка растворилась в квантовой пене!",
-            # reply_markup=types.ReplyKeyboardRemove()
-        # )
-        # return
-    
-    # # 20% шанс что кнопка пропадёт из клавиатуры
-    # include_ghost = random.random() > 0.2
-    
-    # # Выбираем новый случайный эмодзи
-    # new_emoji = random.choice(get_ghost_emoji_variants())
-    
-    # await message.answer(
-        # f"Кнопка превратилась в {new_emoji}!" if include_ghost else "Кнопка почти исчезла...",
-        # reply_markup=get_main_keyboard(ghost_emoji=new_emoji, include_ghost=include_ghost)
-    # )
-
 @router.message(F.text.in_(get_ghost_emoji_variants()))
 async def ghost_button(message: types.Message):
     # 30% шанс полного исчезновения
@@ -113,3 +79,34 @@ async def self_chat(message: types.Message):
         await message.answer(generate_thought())
         await asyncio.sleep(1)
     await message.answer("Диалог окончен. Вы проиграли.")
+		
+@router.message(Command("help"))
+@log_activity
+async def cmd_help(message: types.Message):
+    help_text = (
+        "🌀 <b>Руководство по квантовому безумию:</b>\n\n"
+        "→ /chaos — Активировать случайную функцию\n"
+        "→ /horoscope — Предсказание из антиматерии\n"
+        "→ /feedback — Отправить сообщение в никуда\n"
+        "→ /antimanual — Самоуничтожающаяся инструкция\n"
+        "→ /help — Этот список безумия\n\n"
+        "→ @бот_юзернейм — Инлайн-режим абсурда\n\n"
+        "<i>Просто пиши что угодно — система коллапсирует!</i>"
+    )
+    await message.answer(help_text, parse_mode="HTML")
+		
+@router.message(Command("antimanual"))
+@log_activity
+async def cmd_antimanual(message: types.Message):
+    await message.answer(
+        "📜 *Инструкция уничтожена.*\n"
+        f"Причина: {generate_iupac_name()}\n"
+        "Попробуйте /help для новой версии"
+    )
+		
+@router.message(Command("chaos"))
+@log_activity 
+async def cmd_chaos(message: types.Message, state: FSMContext):
+    # Обработчик с дополнительными параметрами
+    await state.update_data(chaos_level=10)
+    await message.answer("Хаос активирован!")

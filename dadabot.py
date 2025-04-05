@@ -4,6 +4,7 @@ from aiogram import Bot, Dispatcher, F
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.client.default import DefaultBotProperties
 from handlers import commands, messages
+from inline import router as inline_router
 
 # Настройка логирования
 logging.basicConfig(
@@ -32,6 +33,7 @@ dp = Dispatcher(storage=storage)
 # Регистрация обработчиков
 dp.include_router(commands.router)
 dp.include_router(messages.router)
+dp.include_router(inline_router)
 
 if __name__ == '__main__':
     print("🟢 Бот запущен. Ожидание квантовых взаимодействий...")

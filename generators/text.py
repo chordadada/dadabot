@@ -39,3 +39,5 @@ def generate_thought():
     except Exception as e:
         logger.error(f"💥 Критическая ошибка: {e}")
         return "Мысль исчезла в сингулярности"
+		
+    logger.info(f"Сгенерирована мысль для {user_id}: {result[:50]}...")

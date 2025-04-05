@@ -1,6 +1,6 @@
 import time
 import random
-
+from utils.helpers import random_emojis
 
 class UserState:
     def __init__(self):
@@ -11,7 +11,7 @@ class UserState:
         'quantum_rebel': False,
         'paradox_master': False
         }
-        self.ghost_emoji = "👻"
+        #self.ghost_emoji = "👻"
         self.ghost_data = {
             "current_emoji": "👻",
             "visibility": True
@@ -23,8 +23,9 @@ class UserState:
                 'banality_level': 0,
                 'quantum_entangled_with': None,
                 'last_interaction': time.time(),
-								'quantum_events': 0,
-                'collapse_chance': 0.1
+                'quantum_events': 0,
+                'collapse_chance': 0.1,
+                'used_commands': {}
             }
         return self.users[user_id]
 
@@ -67,3 +68,18 @@ class UserState:
         from utils.helpers import random_emojis
         self.ghost_emoji = random_emojis(1, emoji_set=random.choice(["magic", "science"]))
         return self.ghost_emoji
+				
+    def track_command_usage(self, user_id: int, command: str):
+        state = self.get_state(user_id)
+        #state.setdefault('used_commands', {})
+        state['used_commands'][command] = state['used_commands'].get(command, 0) + 1
+
+class QuantumUser:
+    @property
+    def unlocked_features(self):
+        return {
+            'chaos': self.chaos_level > 10,
+            'antimanual': random.random() > 0.7
+        }
+
+user_state = UserState()
