@@ -2,6 +2,7 @@ from aiogram import Router, types, F
 from aiogram.fsm.context import FSMContext
 from states.user_states import UserState
 from generators.visual import generate_pseudoscience_chart
+from generators.text import generate_thought
 from utils.keyboards import get_main_keyboard, get_ghost_emoji_variants
 from utils.helpers import random_emojis
 from aiogram.types import FSInputFile
@@ -105,3 +106,10 @@ async def ghost_button(message: types.Message):
     else:
         markup = get_main_keyboard(ghost_emoji=None)  # Без кнопки-призрака
         await message.answer("Кнопка исчезла... но ненадолго!", reply_markup=markup)
+				
+@router.message(F.text == "Поговори сам с собой")
+async def self_chat(message: types.Message):
+    for _ in range(3):
+        await message.answer(generate_thought())
+        await asyncio.sleep(1)
+    await message.answer("Диалог окончен. Вы проиграли.")
