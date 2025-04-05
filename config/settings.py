@@ -9,7 +9,8 @@ load_dotenv()
 class Settings(BaseSettings):
     # Основные настройки
     BOT_TOKEN: str = Field(..., env="BOT_TOKEN")
-    ADMIN_IDS: list[int] = Field(default=[], env="ADMIN_IDS")
+    ADMIN_IDS: int = Field(..., env="ADMIN_IDS")
+    IMGUR_CLIENT_ID: str = Field("", env="IMGUR_CLIENT_ID")
     
     # Настройки логирования
     LOG_LEVEL: str = Field("INFO", env="LOG_LEVEL")
@@ -25,6 +26,7 @@ class Settings(BaseSettings):
     QUANTUM_CHANCE: float = Field(0.15, env="QUANTUM_CHANCE")
     INLINE_ENABLED: bool = True
     MAX_CHAOS_LEVEL: int = 100
+    IMGUR_CLIENT_ID: str = ""
 
     class Config:
         env_file = ".env"

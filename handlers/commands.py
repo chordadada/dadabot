@@ -4,6 +4,7 @@ from states.user_states import UserState
 from generators.visual import generate_pseudoscience_chart
 from generators.text import generate_thought
 from generators.chemical import generate_iupac_name
+from generators.getwikimg import get_random_wiki_image
 from utils.keyboards import get_main_keyboard, get_ghost_emoji_variants
 from utils.helpers import random_emojis
 from aiogram.types import FSInputFile
@@ -44,15 +45,27 @@ async def explosion(message: types.Message):
 
 @router.message(F.text == "Искусство")
 async def send_art(message: types.Message):
-    media = random.choice([
-        "https://i.imgur.com/FmtgAhR.jpeg",
-        "https://i.imgur.com/Fj8tDx4.png"
-    ])
-    if media.endswith(".mp4"):
-        await message.answer_video(media)
-    else:
-        await message.answer_photo(media)
-    await message.answer("Это стоило 1.2 миллиона евро. Вы не понимаете.")
+    media_url, title = await get_random_wiki_image()
+    
+    if not media_url:
+        await message.answer(title)
+        return
+        
+    try:
+        if media_url.endswith(('.mp4', '.gifv', '.gif')):
+            await message.answer_animation(media_url)
+        else:
+            await message.answer_photo(media_url)
+            
+        await message.answer(
+            f"🌀 {title}\n\n"
+            f"Оценочная стоимость: {random.randint(1000, 1000000)} евро\n"
+            f"Критики утверждают: {generate_thought()}"
+        )
+        
+    except Exception as e:
+        await message.answer("Арт-объект самоуничтожился при передаче 🕳️")
+        print(f"Ошибка отправки: {str(e)}")
 
 @router.message(F.text.in_(get_ghost_emoji_variants()))
 async def ghost_button(message: types.Message):
