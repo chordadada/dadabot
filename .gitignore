@@ -3,6 +3,7 @@
 .env.local
 config.py
 secrets/
+data/media/
 
 # Виртуальное окружение
 venv/
