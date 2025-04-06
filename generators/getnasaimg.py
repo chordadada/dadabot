@@ -36,7 +36,10 @@ async def get_nasa_eternal_image():
                 return random.choice(FALLBACK_IMAGES)
             
             # Формируем "вечное" описание
-            title = data.get("title", "Космическая бездна")
+            #title = data.get("title", "Космическая бездна")
+            adjectives = ["Трансцендентальное", "Квантовое", "Абсурдное"]
+            nouns = ["видение", "откровение", "парадокс"]
+            title = f"{random.choice(adjectives)} {random.choice(nouns)}"
             explanation = data.get("explanation", "")
             
             eternal_phrases = [
@@ -45,12 +48,10 @@ async def get_nasa_eternal_image():
                 "Застывший момент вечности",
                 "Свидетельство непостижимого"
             ]
-            
+						            
             description = (
-                f"🪐 {title}\n\n"
+                f"{title}\n\n"
                 f"{random.choice(eternal_phrases)}\n"
-                f"▬▬▬\n"
-                f"{explanation[:150]}..."  # Обрезаем до первого абзаца
             )
 
             return data["hdurl"], description

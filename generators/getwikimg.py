@@ -60,7 +60,24 @@ async def get_random_wiki_image():
         title = metadata.get("ObjectName", {}).get("value", "Без названия")
         license = metadata.get("LicenseShortName", {}).get("value", "CC-BY-SA")
 
-        description = f"{title} (Автор: {author}, Лицензия: {license})"
+        #description = f"{title} (Автор: {author}, Лицензия: {license})"
+				
+        adjectives = ["Трансцендентное", "Кашемировое", "Ржавое"]
+        nouns = ["изваяние", "фиаско", "семя знахарки"]
+        title = f"{random.choice(adjectives)} {random.choice(nouns)}"
+        explanation = data.get("explanation", "")
+        
+        art_phrases = [
+            "Непорочное, как само искусство",
+            "Шокарует ли? Отнюдь!",
+            "Бокал игристого!",
+            "Печаль и боль — вот мой пароль"
+        ]
+
+        description = (
+            f"{title}\n\n"
+            f"{random.choice(art_phrases)}\n"
+        )
 
         return original_url, description
 

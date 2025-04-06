@@ -37,13 +37,18 @@ class UserState:
     def get_last_message(self, user_id: int) -> str:
         """Возвращает последнее сообщение пользователя"""
         return self.message_history.get(user_id, "")
-
-    def update_message_history(self, user_id: int, message: str, max_history=5):
-        """Хранит только последние 5 сообщений"""
+				
+    def update_message_history(self, user_id: int, message: str):
         if user_id not in self.message_history:
-          self.message_history[user_id] = []
+            self.message_history[user_id] = []
         self.message_history[user_id].append(message)
-        self.message_history[user_id] = self.message_history[user_id][-max_history:]
+
+    # def update_message_history(self, user_id: int, message: str, max_history=5):
+        # """Хранит только последние 5 сообщений"""
+        # if user_id not in self.message_history:
+          # self.message_history[user_id] = []
+        # self.message_history[user_id].append(message)
+        # self.message_history[user_id] = self.message_history[user_id][-max_history:]
 			
     def get_message_history(self, user_id: int) -> list:
         """Возвращает все сохраненные сообщения"""

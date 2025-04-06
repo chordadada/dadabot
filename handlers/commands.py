@@ -6,7 +6,10 @@ from generators.text import generate_thought
 from generators.chemical import generate_iupac_name
 from generators.getwikimg import get_random_wiki_image
 from generators.getnasaimg import get_nasa_eternal_image
-from utils.keyboards import get_main_keyboard, get_ghost_emoji_variants
+from generators import seq_gen
+from utils.database import add_to_mailing_list
+from generators.image_provider import get_image
+from utils.keyboards import get_main_keyboard
 from utils.helpers import random_emojis
 from aiogram.types import FSInputFile
 from aiogram.filters import Command
@@ -28,10 +31,7 @@ user_state = UserState()
 
 @router.message(Command("start"))
 async def cmd_start(message: types.Message, state: FSMContext):
-		# Получаем случайный эмодзи для кнопки
-    ghost_emoji = random_emojis(1, emoji_set="magic")
-    # Создаём клавиатуру (всегда показываем кнопку при /start)
-    markup = get_main_keyboard(ghost_emoji=ghost_emoji)
+    markup = get_main_keyboard()
     await message.answer("Вы согласны с тем, что ничего не согласны?", reply_markup=markup)
     print(f"🌀 Пользователь {message.from_user.id} начал квантовый диалог")
 		
@@ -52,10 +52,25 @@ async def explosion(message: types.Message):
     await message.answer("💥 *тишина*")
     await asyncio.sleep(3)
     await message.answer("Сюрприз! Взрыв был метафорой.")
+		
+@router.message(Command("horoscope"))
+async def cmd_horoscope(message: types.Message):
+    user_id = message.from_user.id
+    
+    # Генерируем тестовую последовательность длины 4 (30% = 1-2 правильных шага)
+    test_sequence = seq_gen.generate_sequence(user_id, length=4)
+    await message.answer(
+        "🔮 Чтобы получить гороскоп, повторите тайную последовательность Да/Да.\n"
+        f"Требуется шагов: {len(test_sequence)}"
+    )
+    
+    # Сохраняем тип кнопок для этой попытки
+    user_state.get_state(user_id)["horoscope_mode"] = 0  # 0: Левая=Нет, Правая=Да
 
 @router.message(Command("dadart"))
 async def send_art(message: types.Message):
-    media_url, title = await get_random_wiki_image()
+    user_progress = seq_gen.calculate_user_progress(message.from_user.id)
+    media_url, title = await get_image(user_progress)
     
     if not media_url:
         await message.answer(title)
@@ -76,26 +91,7 @@ async def send_art(message: types.Message):
     except Exception as e:
         await message.answer("Арт-объект самоуничтожился при передаче 🕳️")
         print(f"Ошибка отправки: {str(e)}")
-
-@router.message(F.text.in_(get_ghost_emoji_variants()))
-async def ghost_button(message: types.Message):
-    # 30% шанс полного исчезновения
-    if random.random() < 0.3:
-        await message.answer(
-            f"{message.text} растворился в квантовой пене!",
-            reply_markup=types.ReplyKeyboardRemove()
-        )
-        return
-    
-    # 50% шанс что кнопка изменится, 50% что исчезнет
-    if random.random() < 0.5:
-        new_emoji = random_emojis(1, emoji_set="magic")
-        markup = get_main_keyboard(ghost_emoji=new_emoji)
-        await message.answer(f"Кнопка превратилась в {new_emoji}!", reply_markup=markup)
-    else:
-        markup = get_main_keyboard(ghost_emoji=None)  # Без кнопки-призрака
-        await message.answer("Кнопка исчезла... но ненадолго!", reply_markup=markup)
-				
+	
 @router.message(F.text == "Поговори сам с собой")
 async def self_chat(message: types.Message):
     for _ in range(3):
@@ -108,31 +104,14 @@ async def self_chat(message: types.Message):
 async def cmd_help(message: types.Message):
     help_text = (
         "🌀 <b>Руководство по квантовому безумию:</b>\n\n"
-        "→ /chaos — Активировать случайную функцию\n"
-        "→ /horoscope — Предсказание из антиматерии\n"
-        "→ /feedback — Отправить сообщение в никуда\n"
-        "→ /antimanual — Самоуничтожающаяся инструкция\n"
-        "→ /help — Этот список безумия\n\n"
-        "→ @бот_юзернейм — Инлайн-режим абсурда\n\n"
+        "→ /start - Начать диалог\n"
+        "→ /dadart - Получить арт-объект\n"
+        "→ /horoscope - Гороскоп-провокация\n"
+        "→ /futuredada - Видео из будущего\n"
+        "→ /feedback - Квантовый переводчик\n\n"
         "<i>Просто пиши что угодно — система коллапсирует!</i>"
-    )
+        )
     await message.answer(help_text, parse_mode="HTML")
-		
-@router.message(Command("antimanual"))
-@log_activity
-async def cmd_antimanual(message: types.Message):
-    await message.answer(
-        "📜 *Инструкция уничтожена.*\n"
-        f"Причина: {generate_iupac_name()}\n"
-        "Попробуйте /help для новой версии"
-    )
-		
-@router.message(Command("chaos"))
-@log_activity 
-async def cmd_chaos(message: types.Message, state: FSMContext):
-    # Обработчик с дополнительными параметрами
-    await state.update_data(chaos_level=10)
-    await message.answer("Хаос активирован!")
 		
 @router.message(Command("eternaldada"))
 @log_activity
@@ -169,3 +148,16 @@ async def send_cosmic_dada(message: types.Message):
             "Это и есть высшая форма искусства"
         )
         print(f"Квантовая ошибка: {str(e)}")
+				
+@router.message(Command("futuredada"))
+async def send_future_dada(message: types.Message):
+    videos = [
+        "https://t.me/chordadada/123",
+        "https://t.me/chordadada/456"
+    ]
+    caption = random.choice([
+        "Вот, что тебя ждёт!",
+        "Берегись этого!",
+        "Твоё будущее уже здесь!"
+    ])
+    await message.answer_video(random.choice(videos), caption=caption)
