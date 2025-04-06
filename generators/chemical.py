@@ -8,5 +8,5 @@ def generate_iupac_name() -> str:
         generator = InorganicGenerator()
     
     name, formula = generator.generate()
-    return f"🧪 {name} ({formula})"
+    return f"{name} ({formula})"
 		

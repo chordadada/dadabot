@@ -5,6 +5,7 @@ from generators.visual import generate_pseudoscience_chart
 from generators.text import generate_thought
 from generators.chemical import generate_iupac_name
 from generators.getwikimg import get_random_wiki_image
+from generators.getnasaimg import get_nasa_eternal_image
 from utils.keyboards import get_main_keyboard, get_ghost_emoji_variants
 from utils.helpers import random_emojis
 from aiogram.types import FSInputFile
@@ -12,6 +13,15 @@ from aiogram.filters import Command
 from utils.decorators import log_activity
 import random
 import asyncio
+
+#Список для ботфазера
+# start - Пси и Хи
+# dadart - Порция из куста
+# eternaldada - Вечное сияние дада
+# horoscope - Предсказание из антиматери
+# feedback - Отправить сообщение в никуда
+# antimanual - Самоуничтожающаяся инструкция
+# help - Зачем это всё
 
 router = Router()
 user_state = UserState()
@@ -43,7 +53,7 @@ async def explosion(message: types.Message):
     await asyncio.sleep(3)
     await message.answer("Сюрприз! Взрыв был метафорой.")
 
-@router.message(F.text == "Искусство")
+@router.message(Command("dadart"))
 async def send_art(message: types.Message):
     media_url, title = await get_random_wiki_image()
     
@@ -123,3 +133,39 @@ async def cmd_chaos(message: types.Message, state: FSMContext):
     # Обработчик с дополнительными параметрами
     await state.update_data(chaos_level=10)
     await message.answer("Хаос активирован!")
+		
+@router.message(Command("eternaldada"))
+@log_activity
+async def send_cosmic_dada(message: types.Message):
+    # Получаем космический артефакт
+    media_url, cosmic_description = await get_nasa_eternal_image()
+    
+    # Генерируем абсурдные мета-данные
+    price = random.choice(["♾ кг звёздной пыли", f"{random.randint(1,100)} чёрных дыр"])
+    verdict = random.choice([
+        "Этот объект отрицает само понятие искусства",
+        "Галактический совет признал работу нелегитимной",
+        "Квантовая пена в восторге"
+    ])
+
+    try:
+        # Отправляем медиа с дада-интерпретацией
+        if media_url.endswith(('.mp4', '.webm')):
+            await message.answer_video(media_url, caption=cosmic_description[:1024])
+        else:
+            await message.answer_photo(
+                media_url,
+                f"⚡ АРТ-РЕЛИКТ №{random.randint(10**12, 10**18)}\n\n"
+                f"Оценочная стоимость: {price}\n"
+                f"Вердикт Совета Бессмертных: {verdict}\n\n"
+                f"<tg-spoiler>📜 {cosmic_description}</tg-spoiler>"
+            )
+
+    except Exception as e:
+        # Фолбэк с концептуальным объяснением
+        await message.answer(
+            "Космический вакуум поглотил артефакт\n\n"
+            "▫️▫️▫️▫️▫️▫️▫️▫️\n"
+            "Это и есть высшая форма искусства"
+        )
+        print(f"Квантовая ошибка: {str(e)}")

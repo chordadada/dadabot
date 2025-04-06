@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     BOT_TOKEN: str = Field(..., env="BOT_TOKEN")
     ADMIN_IDS: int = Field(..., env="ADMIN_IDS")
     IMGUR_CLIENT_ID: str = Field("", env="IMGUR_CLIENT_ID")
+    NASA_API_KEY: str = Field("", env="NASA_API_KEY")
     
     # Настройки логирования
     LOG_LEVEL: str = Field("INFO", env="LOG_LEVEL")
