@@ -24,7 +24,7 @@ class UserState:
                 'quantum_entangled_with': None,
                 'last_interaction': time.time(),
                 'quantum_events': 0,
-                'collapse_chance': 0.1,
+                'horoscope_mode': False,
                 'used_commands': {}
             }
         return self.users[user_id]

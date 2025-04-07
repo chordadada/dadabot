@@ -1,4 +1,4 @@
-from aiogram import Router, types, F
+from aiogram import Bot, Router, types, F
 from aiogram.fsm.context import FSMContext
 from states.user_states import UserState
 from generators.visual import generate_pseudoscience_chart
@@ -6,7 +6,8 @@ from generators.text import generate_thought
 from generators.chemical import generate_iupac_name
 from generators.getwikimg import get_random_wiki_image
 from generators.getnasaimg import get_nasa_eternal_image
-from generators import seq_gen
+import requests
+from datetime import datetime
 from utils.database import add_to_mailing_list
 from generators.image_provider import get_image
 from utils.keyboards import get_main_keyboard
@@ -16,6 +17,8 @@ from aiogram.filters import Command
 from utils.decorators import log_activity
 import random
 import asyncio
+from random import choice
+from core.bot_instance import get_bot
 
 #Список для ботфазера
 # start - Пси и Хи
@@ -56,20 +59,64 @@ async def explosion(message: types.Message):
 @router.message(Command("horoscope"))
 async def cmd_horoscope(message: types.Message):
     user_id = message.from_user.id
+    state = user_state.get_state(user_id)
     
-    # Генерируем тестовую последовательность длины 4 (30% = 1-2 правильных шага)
-    test_sequence = seq_gen.generate_sequence(user_id, length=4)
+    state["horoscope_mode"] = True  # Только флаг без счётчика
     await message.answer(
-        "🔮 Чтобы получить гороскоп, повторите тайную последовательность Да/Да.\n"
-        f"Требуется шагов: {len(test_sequence)}"
+        "🌀 Нажмите 'Да' чтобы квантово подписаться на гороскопы!\n"
+        "Шанс успеха определяется кошкой Шрёдингера",
+        reply_markup=get_main_keyboard()
     )
+
+async def generate_horoscope(user_id: int) -> str:
+    try:
+        # Пример API (можно заменить на любое бесплатное)
+        zodiac_signs = ["aries", "taurus", "gemini"]
+        sign = zodiac_signs[user_id % 3]
+        response = requests.get(f"https://horoscope-app-api.vercel.app/api/v1/get-horoscope/daily?sign={sign}")
+        prediction = response.json()["data"]["horoscope_data"]
+    except:
+        prediction = "Сегодня звёзды предпочитают молчать. Создайте свой собственный хаос!"
+
+    formula = generate_iupac_name()
+    return (
+        f"♓ Гороскоп для Дадаиста №{user_id % 1000}:\n"
+        f"{prediction}\n\n"
+        f"⚠️ Избегайте: {formula}"
+    )
+
+async def send_daily_horoscope():
+    """Ежедневная рассылка гороскопов подписчикам"""
+    from core.bot_instance import get_bot
+    from utils.database import mailing_list
+    from generators.horoscope import generate_horoscope
     
-    # Сохраняем тип кнопок для этой попытки
-    user_state.get_state(user_id)["horoscope_mode"] = 0  # 0: Левая=Нет, Правая=Да
+    bot = get_bot()
+    
+    for user_id in list(mailing_list):  # Создаем копию для безопасной итерации
+        try:
+            # 1. Проверяем доступность чата
+            await bot.get_chat(user_id)  # Вызовет исключение если бот заблокирован
+            
+            # 2. Генерируем контент
+            text = await generate_horoscope(user_id)
+            
+            # 3. Отправляем сообщение
+            await bot.send_message(
+                chat_id=user_id,
+                text=text,
+                disable_notification=True  # Тихая отправка
+            )
+            print(f"✓ Гороскоп отправлен для {user_id}")
+            
+        except Exception as e:
+            print(f"✕ Ошибка для {user_id}: {str(e)}")
+            mailing_list.discard(user_id)  # Удаляем недоступных пользователей
+            continue  # Переходим к следующему
 
 @router.message(Command("dadart"))
 async def send_art(message: types.Message):
-    user_progress = seq_gen.calculate_user_progress(message.from_user.id)
+    user_progress = random.choice([0, 1])
     media_url, title = await get_image(user_progress)
     
     if not media_url:
@@ -161,3 +208,8 @@ async def send_future_dada(message: types.Message):
         "Твоё будущее уже здесь!"
     ])
     await message.answer_video(random.choice(videos), caption=caption)
+		
+# Временный код для теста (добавить в commands.py)
+@router.message(Command("test_horoscope"))
+async def test_send(message: types.Message):
+    await send_daily_horoscope()
