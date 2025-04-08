@@ -1,6 +1,8 @@
 from functools import wraps
 from aiogram import types
 from states.user_states import user_state
+import logging
+logger = logging.getLogger(__name__)
 
 def log_activity(func):
     @wraps(func)
@@ -22,7 +24,7 @@ def log_activity(func):
             user_id = message.from_user.id
             command = message.text.split()[0] if message.text else "unknown"
             user_state.track_command_usage(user_id, command)
-            print(f"[🌀] User {user_id} использовал: {command}")
+            logger.info(f"[🌀] User {user_id} использовал: {command}")
 
         # Вызываем оригинальную функцию
         return await func(*args, **kwargs)

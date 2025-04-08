@@ -12,9 +12,8 @@ from aiogram.types import FSInputFile
 import time
 import random
 import asyncio
-from aiogram import F, Router
-from aiogram.filters import Command
-from aiogram.types import FSInputFile
+import logging
+logger = logging.getLogger(__name__)
 
 # Создаём роутер
 router = Router()
@@ -32,7 +31,7 @@ async def handle_da(message: types.Message):
         if random.random() < 0.33:
             add_to_mailing_list(user_id)
             await message.answer("✅ Активирован поток предсказаний!")
-            print(f"🌀 Новый подписчик: {user_id}")
+            logger.info(f"🌀 Новый подписчик: {user_id}")
         else:
             await message.answer("❌ Связь с будущим потеряна!")
         
@@ -49,7 +48,7 @@ async def handle_da(message: types.Message):
     else:
         state['banality_level'] = state.get('banality_level', 0) + 1
 
-    print(f"[{user_id}] Уровень абсурда: {state['banality_level']}")
+    logger.info(f"[{user_id}] Уровень абсурда: {state['banality_level']}")
 
 async def send_regular_response(message: types.Message, state: dict):
     response = (

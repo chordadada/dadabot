@@ -8,14 +8,14 @@ from inline import router as inline_router
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from core.bot_instance import set_bot_instance
 
-# Настройка логирования
 logging.basicConfig(
     level=config.LOG_LEVEL,
-    format=config.LOG_FORMAT
+    format=config.LOG_FORMAT,
+    handlers=[logging.StreamHandler()]  # Вывод в консоль
 )
-
+logger = logging.getLogger(__name__)
 # Красивый вывод в консоль при запуске
-print("""
+logger.info("""
 ███████╗███████╗██████╗ ██████╗  ██████╗ 
 ██╔════╝██╔════╝██╔══██╗██╔══██╗██╔═══██╗
 █████╗  █████╗  ██║  ██║██║  ██║██║   ██║
@@ -47,7 +47,7 @@ async def on_startup():
         hour=12
     )
     scheduler.start()
-    print("⏰ Планировщик запущен")
+    logger.info("⏰ Планировщик запущен")
 
 if __name__ == '__main__':
     dp.startup.register(on_startup)

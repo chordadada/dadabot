@@ -161,7 +161,7 @@ class InorganicGenerator:
         return names.get(residue, "неизвестная")
 
 # Пример использования
-if __name__ == "__main__":
-    generator = InorganicGenerator()
-    for _ in range(5):
-        print(generator.generate())
+# if __name__ == "__main__":
+    # generator = InorganicGenerator()
+    # for _ in range(5):
+        # print(generator.generate())

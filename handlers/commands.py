@@ -19,6 +19,8 @@ import random
 import asyncio
 from random import choice
 from core.bot_instance import get_bot
+import logging
+logger = logging.getLogger(__name__)
 
 #Список для ботфазера
 # start - Пси и Хи
@@ -36,7 +38,7 @@ user_state = UserState()
 async def cmd_start(message: types.Message, state: FSMContext):
     markup = get_main_keyboard()
     await message.answer("Вы согласны с тем, что ничего не согласны?", reply_markup=markup)
-    print(f"🌀 Пользователь {message.from_user.id} начал квантовый диалог")
+    logger.info(f"🌀 Пользователь {message.from_user.id} начал квантовый диалог")
 		
 @router.message(F.text == "Кот Шрёдингера")
 async def quantum_cat(message: types.Message):
@@ -68,23 +70,6 @@ async def cmd_horoscope(message: types.Message):
         reply_markup=get_main_keyboard()
     )
 
-async def generate_horoscope(user_id: int) -> str:
-    try:
-        # Пример API (можно заменить на любое бесплатное)
-        zodiac_signs = ["aries", "taurus", "gemini"]
-        sign = zodiac_signs[user_id % 3]
-        response = requests.get(f"https://horoscope-app-api.vercel.app/api/v1/get-horoscope/daily?sign={sign}")
-        prediction = response.json()["data"]["horoscope_data"]
-    except:
-        prediction = "Сегодня звёзды предпочитают молчать. Создайте свой собственный хаос!"
-
-    formula = generate_iupac_name()
-    return (
-        f"♓ Гороскоп для Дадаиста №{user_id % 1000}:\n"
-        f"{prediction}\n\n"
-        f"⚠️ Избегайте: {formula}"
-    )
-
 async def send_daily_horoscope():
     """Ежедневная рассылка гороскопов подписчикам"""
     from core.bot_instance import get_bot
@@ -107,37 +92,44 @@ async def send_daily_horoscope():
                 text=text,
                 disable_notification=True  # Тихая отправка
             )
-            print(f"✓ Гороскоп отправлен для {user_id}")
+            logger.info(f"✓ Гороскоп отправлен для {user_id}")
             
         except Exception as e:
-            print(f"✕ Ошибка для {user_id}: {str(e)}")
+            logger.error(f"✕ Ошибка для {user_id}: {str(e)}")
             mailing_list.discard(user_id)  # Удаляем недоступных пользователей
             continue  # Переходим к следующему
 
 @router.message(Command("dadart"))
 async def send_art(message: types.Message):
-    user_progress = random.choice([0, 1])
-    media_url, title = await get_image(user_progress)
-    
-    if not media_url:
-        await message.answer(title)
-        return
-        
     try:
-        if media_url.endswith(('.mp4', '.gifv', '.gif')):
-            await message.answer_animation(media_url)
-        else:
-            await message.answer_photo(media_url)
-            
-        await message.answer(
-            f"🌀 {title}\n\n"
-            f"Оценочная стоимость: {random.randint(1000, 1000000)} евро\n"
-            f"Критики утверждают: {generate_thought()}"
+        user_progress = random.random()
+        media_url, title = await get_image(user_progress)
+        if not media_url:
+            await message.answer(title)
+            return
+
+        caption = (
+            f"<b>🌀 {title}</b>\n"
+            f"💶 Оценочная стоимость: {random.randint(1000, 1000000)} евро\n"
+            f"📰 Комментарий критикессы: <i>{generate_thought()}</i>"
         )
-        
+
+        if media_url.endswith(('.mp4', '.webm', '.gifv', '.gif')):
+            await message.answer_animation(
+                media_url,
+                caption=caption[:1024],  # Ограничение Telegram на 1024 символа
+								parse_mode="HTML"
+            )
+        else:
+            await message.answer_photo(
+                media_url,
+                caption=caption[:1024],
+								parse_mode="HTML"
+            )
+
     except Exception as e:
         await message.answer("Арт-объект самоуничтожился при передаче 🕳️")
-        print(f"Ошибка отправки: {str(e)}")
+        logger.error(f"Ошибка отправки: {str(e)}", exc_info=True)
 	
 @router.message(F.text == "Поговори сам с собой")
 async def self_chat(message: types.Message):
@@ -194,7 +186,7 @@ async def send_cosmic_dada(message: types.Message):
             "▫️▫️▫️▫️▫️▫️▫️▫️\n"
             "Это и есть высшая форма искусства"
         )
-        print(f"Квантовая ошибка: {str(e)}")
+        logger.error(f"Квантовая ошибка: {str(e)}")
 				
 @router.message(Command("futuredada"))
 async def send_future_dada(message: types.Message):

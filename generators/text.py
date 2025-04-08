@@ -1,7 +1,6 @@
 import random
 import json
 import logging
-
 logger = logging.getLogger(__name__)
 
 def generate_thought():
@@ -26,7 +25,7 @@ def generate_thought():
     # Автозаполнение отсутствующих ключей
     for key in default_phrases:
         if key not in phrases:
-            logger.warning(f"⚠️ Ключ '{key}' отсутствует, используются резервные значения")
+            logger.error(f"⚠️ Ключ '{key}' отсутствует, используются резервные значения")
             phrases[key] = default_phrases[key]
 
     # Генерация структуры мысли
@@ -35,9 +34,11 @@ def generate_thought():
             ["intro", "noun", "verb", "concept"],
             ["quote", "author", "absurd_comment"]
         ])
-        return ' '.join([random.choice(phrases[key]) for key in structure])
+        result = ' '.join([random.choice(phrases[key]) for key in structure])
+        logger.info(f"Сгенерирована мысль: {result[:50]}...")
+        return result
     except Exception as e:
         logger.error(f"💥 Критическая ошибка: {e}")
         return "Мысль исчезла в сингулярности"
 		
-    logger.info(f"Сгенерирована мысль для {user_id}: {result[:50]}...")
+    
