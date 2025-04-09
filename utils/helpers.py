@@ -1,4 +1,3 @@
-# helpers.py
 import random
 from typing import Literal
 

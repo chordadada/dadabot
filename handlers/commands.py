@@ -10,7 +10,7 @@ import requests
 from datetime import datetime
 from utils.database import add_to_mailing_list
 from generators.image_provider import get_image
-from utils.keyboards import get_main_keyboard
+from utils.keyboards import get_main_keyboard, get_horoscope_keyboard
 from utils.helpers import random_emojis
 from aiogram.types import FSInputFile
 from aiogram.filters import Command
@@ -19,6 +19,7 @@ import random
 import asyncio
 from random import choice
 from core.bot_instance import get_bot
+from states.user_states import user_state
 import logging
 logger = logging.getLogger(__name__)
 
@@ -32,7 +33,7 @@ logger = logging.getLogger(__name__)
 # help - Зачем это всё
 
 router = Router()
-user_state = UserState()
+#user_state = UserState()
 
 @router.message(Command("start"))
 async def cmd_start(message: types.Message, state: FSMContext):
@@ -57,16 +58,29 @@ async def explosion(message: types.Message):
     await message.answer("💥 *тишина*")
     await asyncio.sleep(3)
     await message.answer("Сюрприз! Взрыв был метафорой.")
+
+# Команда со сменой клавиатуры на ДАДА		
+# @router.message(Command("horoscope"))
+# async def cmd_horoscope(message: types.Message):
+    # user_id = message.from_user.id
+    # state = user_state.get_state(user_id)
+    # state["horoscope_mode"] = True
+    # state["horoscope_attempts"] = 0
+
+    # await message.answer(
+        # "🌌 Готовы подписаться на гороскопы? Успех зависит от вашей квантовой неопределённости.",
+        # reply_markup=get_horoscope_keyboard()
+    # )
 		
 @router.message(Command("horoscope"))
 async def cmd_horoscope(message: types.Message):
     user_id = message.from_user.id
     state = user_state.get_state(user_id)
-    
-    state["horoscope_mode"] = True  # Только флаг без счётчика
+    state["horoscope_mode"] = True
+    state["horoscope_attempts"] = 0  # Сброс счетчика попыток
     await message.answer(
         "🌀 Нажмите 'Да' чтобы квантово подписаться на гороскопы!\n"
-        "Шанс успеха определяется кошкой Шрёдингера",
+        "Успех не гарантирован!",
         reply_markup=get_main_keyboard()
     )
 

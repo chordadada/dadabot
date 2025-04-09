@@ -8,3 +8,10 @@ def get_main_keyboard() -> ReplyKeyboardMarkup:
         resize_keyboard=True,
         one_time_keyboard=False
     )
+		
+def get_horoscope_keyboard():
+    return ReplyKeyboardMarkup(
+        keyboard=[[KeyboardButton(text="ДАДА")]],
+        resize_keyboard=True,
+        one_time_keyboard=True
+    )

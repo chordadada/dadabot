@@ -1,5 +1,6 @@
 import aiohttp
 from generators.chemical import generate_iupac_name
+from utils.helpers import random_emojis
 
 async def generate_horoscope(user_id: int) -> str:
     try:
@@ -17,7 +18,7 @@ async def generate_horoscope(user_id: int) -> str:
 
     formula = generate_iupac_name()
     return (
-        f"♓ Гороскоп для Дадаиста №{user_id % 1000}:\n"
+        f"{random_emojis(1)}Гороскоп для Дадаиста №{user_id % 1000}:\n"
         f"{prediction}\n\n"
         f"⚠️ Избегайте: {formula}"
     )

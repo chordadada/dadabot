@@ -4,6 +4,7 @@
 config.py
 secrets/
 data/media/
+data/mailing_list.json
 
 # Виртуальное окружение
 venv/
