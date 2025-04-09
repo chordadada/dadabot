@@ -13,6 +13,9 @@ from utils.database import add_to_mailing_list
 from states.user_states import user_state
 from utils.keyboards import DA_VARIANTS, get_main_keyboard
 
+import logging
+logger = logging.getLogger(__name__)
+
 router = Router()
 #user_state = UserState()
 
@@ -30,16 +33,19 @@ async def handle_da(message: types.Message):
             add_to_mailing_list(user_id)
             state["horoscope_mode"] = False
             state["horoscope_attempts"] = 0
-            await message.answer("✅ Вы успешно подписались на квантовые гороскопы! 🌌")
+            await message.answer("✅ Вы успешно подписались на квантовые гороскопы! 🌌",
+						reply_markup=get_main_keyboard())
         else:
             attempts += 1
             state["horoscope_attempts"] = attempts
             if attempts < 3:
-                await message.answer(f"❌ Подписка не удалась. Осталось попыток: {3 - attempts}")
+                await message.answer(f"❌ Подписка не удалась. Осталось попыток: {3 - attempts}",
+								reply_markup=get_main_keyboard())
             else:
                 state["horoscope_mode"] = False
                 state["horoscope_attempts"] = 0
-                await message.answer("❌ Подписка не удалась. Режим гороскопа отключён.")
+                await message.answer("❌ Подписка не удалась. Режим гороскопа отключён.",
+								reply_markup=get_main_keyboard())
         return  # Завершаем обработку, чтобы не обрабатывать как обычное сообщение
 
     # Если бот не в режиме подписки – обрабатываем как обычное сообщение
@@ -53,7 +59,7 @@ async def handle_da(message: types.Message):
     else:
         state['banality_level'] = state.get('banality_level', 0) + 1
 
-    print(f"[{user_id}] Уровень абсурда: {state['banality_level']}")
+    logger.info(f"[{user_id}] Уровень абсурда: {state['banality_level']}")
 		
 # Обработчик для всех сообщений, кроме вариаций "Да"
 @router.message(~F.text.in_(DA_VARIANTS))
@@ -61,9 +67,11 @@ async def handle_text(message: types.Message):
     user_id = message.from_user.id
     state = user_state.get_state(user_id)
     if state.get("horoscope_mode"):
-        await message.answer("🌀 Сейчас активна квантовая подписка на гороскоп. Используйте кнопки 'ДАДА'.")
+        await message.answer("🌀 Сейчас активна квантовая подписка на гороскоп. Используйте кнопки 'ДАДА'.",
+				reply_markup=get_main_keyboard())
         return
-    await message.answer("🌀 Только кнопки 'Да' имеют силу в этом измерении!")
+    await message.answer("🌀 Только кнопки 'Да' имеют силу в этом измерении!",
+		reply_markup=get_main_keyboard())
 
 async def send_regular_response(message: types.Message, state: dict):
     response = (
@@ -72,14 +80,14 @@ async def send_regular_response(message: types.Message, state: dict):
         f"⚛️ Уровень абсурда: {state.get('banality_level', 0)}\n"
         f"{random_emojis(3)}"
     )
-    await message.answer(response)
+    await message.answer(response, reply_markup=get_main_keyboard())
 
 async def trigger_quantum_collapse(message: types.Message):
     user_id = message.from_user.id
     chart_path = generate_pseudoscience_chart(user_id)
-    await message.answer_photo(FSInputFile(chart_path))
     emojis = random_emojis(5, emoji_set="space")
-    await message.answer(f"🌀 Квантовый коллапс! {emojis}")
+    await message.answer_photo(FSInputFile(chart_path),
+    f"🌀 Квантовый коллапс! {emojis}", reply_markup=get_main_keyboard())
     user_state.get_state(user_id).update({
         'collapse_chance': 0.1,
         'banality_level': 0

@@ -10,7 +10,7 @@ import requests
 from datetime import datetime
 from utils.database import add_to_mailing_list
 from generators.image_provider import get_image
-from utils.keyboards import get_main_keyboard, get_horoscope_keyboard
+from utils.keyboards import get_main_keyboard
 from utils.helpers import random_emojis
 from aiogram.types import FSInputFile
 from aiogram.filters import Command
@@ -20,6 +20,7 @@ import asyncio
 from random import choice
 from core.bot_instance import get_bot
 from states.user_states import user_state
+#from aiogram.enums import ParseMode
 import logging
 logger = logging.getLogger(__name__)
 
@@ -37,16 +38,14 @@ router = Router()
 
 @router.message(Command("start"))
 async def cmd_start(message: types.Message, state: FSMContext):
-    markup = get_main_keyboard()
-    await message.answer("Вы согласны с тем, что ничего не согласны?", reply_markup=markup)
+    await message.answer("Вы согласны с тем, что ничего не согласны?", reply_markup=get_main_keyboard())
     logger.info(f"🌀 Пользователь {message.from_user.id} начал квантовый диалог")
 		
 @router.message(F.text == "Кот Шрёдингера")
 async def quantum_cat(message: types.Message):
     state = random.choice(["жив", "мёртв"])
-    markup = get_main_keyboard()
     await message.answer(f"Кот {state}!\n...но это не точно", 
-                        reply_markup=markup)
+                        reply_markup=get_main_keyboard())
     # Логируем событие
     user_state.get_state(message.from_user.id)["quantum_events"] += 1
 
@@ -57,21 +56,8 @@ async def explosion(message: types.Message):
         await asyncio.sleep(1)
     await message.answer("💥 *тишина*")
     await asyncio.sleep(3)
-    await message.answer("Сюрприз! Взрыв был метафорой.")
-
-# Команда со сменой клавиатуры на ДАДА		
-# @router.message(Command("horoscope"))
-# async def cmd_horoscope(message: types.Message):
-    # user_id = message.from_user.id
-    # state = user_state.get_state(user_id)
-    # state["horoscope_mode"] = True
-    # state["horoscope_attempts"] = 0
-
-    # await message.answer(
-        # "🌌 Готовы подписаться на гороскопы? Успех зависит от вашей квантовой неопределённости.",
-        # reply_markup=get_horoscope_keyboard()
-    # )
-		
+    await message.answer("Сюрприз! Взрыв был метафорой.", reply_markup=get_main_keyboard())
+	
 @router.message(Command("horoscope"))
 async def cmd_horoscope(message: types.Message):
     user_id = message.from_user.id
@@ -104,7 +90,8 @@ async def send_daily_horoscope():
             await bot.send_message(
                 chat_id=user_id,
                 text=text,
-                disable_notification=True  # Тихая отправка
+                disable_notification=True,  # Тихая отправка
+								parse_mode="HTML"
             )
             logger.info(f"✓ Гороскоп отправлен для {user_id}")
             
@@ -132,17 +119,19 @@ async def send_art(message: types.Message):
             await message.answer_animation(
                 media_url,
                 caption=caption[:1024],  # Ограничение Telegram на 1024 символа
-								parse_mode="HTML"
+								parse_mode="HTML",
+								reply_markup=get_main_keyboard()
             )
         else:
             await message.answer_photo(
                 media_url,
                 caption=caption[:1024],
-								parse_mode="HTML"
+								parse_mode="HTML",
+								reply_markup=get_main_keyboard()
             )
 
     except Exception as e:
-        await message.answer("Арт-объект самоуничтожился при передаче 🕳️")
+        await message.answer("Арт-объект самоуничтожился при передаче 🕳️", reply_markup=get_main_keyboard())
         logger.error(f"Ошибка отправки: {str(e)}", exc_info=True)
 	
 @router.message(F.text == "Поговори сам с собой")
@@ -150,7 +139,7 @@ async def self_chat(message: types.Message):
     for _ in range(3):
         await message.answer(generate_thought())
         await asyncio.sleep(1)
-    await message.answer("Диалог окончен. Вы проиграли.")
+    await message.answer("Диалог окончен. Вы проиграли.", reply_markup=get_main_keyboard())
 		
 @router.message(Command("help"))
 @log_activity
@@ -164,7 +153,7 @@ async def cmd_help(message: types.Message):
         "→ /feedback - Квантовый переводчик\n\n"
         "<i>Просто пиши что угодно — система коллапсирует!</i>"
         )
-    await message.answer(help_text, parse_mode="HTML")
+    await message.answer(help_text, parse_mode="HTML", reply_markup=get_main_keyboard())
 		
 @router.message(Command("eternaldada"))
 @log_activity
@@ -183,14 +172,15 @@ async def send_cosmic_dada(message: types.Message):
     try:
         # Отправляем медиа с дада-интерпретацией
         if media_url.endswith(('.mp4', '.webm')):
-            await message.answer_video(media_url, caption=cosmic_description[:1024])
+            await message.answer_video(media_url, caption=cosmic_description[:1024], reply_markup=get_main_keyboard())
         else:
             await message.answer_photo(
                 media_url,
                 f"⚡ АРТ-РЕЛИКТ №{random.randint(10**12, 10**18)}\n\n"
                 f"Оценочная стоимость: {price}\n"
                 f"Вердикт Совета Бессмертных: {verdict}\n\n"
-                f"<tg-spoiler>📜 {cosmic_description}</tg-spoiler>"
+                f"<tg-spoiler>📜 {cosmic_description}</tg-spoiler>",
+								reply_markup=get_main_keyboard()
             )
 
     except Exception as e:
@@ -198,7 +188,8 @@ async def send_cosmic_dada(message: types.Message):
         await message.answer(
             "Космический вакуум поглотил артефакт\n\n"
             "▫️▫️▫️▫️▫️▫️▫️▫️\n"
-            "Это и есть высшая форма искусства"
+            "Это и есть высшая форма искусства",
+						reply_markup=get_main_keyboard()
         )
         logger.error(f"Квантовая ошибка: {str(e)}")
 				

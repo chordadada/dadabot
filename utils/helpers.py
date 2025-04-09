@@ -6,6 +6,7 @@ EmojiSet = Literal["space", "science", "magic", "nature", "tech", "random"]
 def random_emojis(
     count: int, 
     emoji_set: EmojiSet = "random",
+		allow_duplicates: bool = False,
     custom_emoji_list: list[str] | None = None
 ) -> str:
     """
@@ -26,5 +27,6 @@ def random_emojis(
     }
     
     bank = custom_emoji_list or emoji_banks.get(emoji_set, emoji_banks["random"])
-    return ''.join(random.choices(bank, k=count))
-
+    if allow_duplicates:
+        return ' '.join(random.choices(bank, k=count))
+    return ' '.join(random.sample(bank, min(count, len(bank))))
