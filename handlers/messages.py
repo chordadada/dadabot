@@ -11,11 +11,12 @@ from utils.helpers import random_emojis
 from utils.decorators import log_activity
 from utils.database import add_to_mailing_list
 from states.user_states import user_state
+from utils.keyboards import DA_VARIANTS, get_main_keyboard
 
 router = Router()
 #user_state = UserState()
 
-@router.message(F.text == "Да")
+@router.message(F.text.in_(DA_VARIANTS))
 async def handle_da(message: types.Message):
     user_id = message.from_user.id
     state = user_state.get_state(user_id)
@@ -53,14 +54,14 @@ async def handle_da(message: types.Message):
         state['banality_level'] = state.get('banality_level', 0) + 1
 
     print(f"[{user_id}] Уровень абсурда: {state['banality_level']}")
-
-# Обработчик для всех сообщений, кроме тех, где текст равен "Да"
-@router.message(lambda message: message.text != "Да")
+		
+# Обработчик для всех сообщений, кроме вариаций "Да"
+@router.message(~F.text.in_(DA_VARIANTS))
 async def handle_text(message: types.Message):
     user_id = message.from_user.id
     state = user_state.get_state(user_id)
     if state.get("horoscope_mode"):
-        await message.answer("🌀 Сейчас активна квантовая подписка на гороскоп. Нажмите «Да».")
+        await message.answer("🌀 Сейчас активна квантовая подписка на гороскоп. Используйте кнопки 'ДАДА'.")
         return
     await message.answer("🌀 Только кнопки 'Да' имеют силу в этом измерении!")
 
