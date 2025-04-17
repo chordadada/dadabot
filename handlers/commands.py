@@ -7,6 +7,7 @@ from generators.text import generate_thought
 from generators.chemical import generate_iupac_name
 from generators.getwikimg import get_random_wiki_image
 from generators.getnasaimg import get_nasa_eternal_image
+from generators.casgen import cas_gen
 import requests
 from datetime import datetime
 from utils.database import add_to_mailing_list
@@ -221,3 +222,13 @@ async def start_quantum_dialog(message: types.Message, state: FSMContext):
         "⚠️ Дада у дадафона. Что у вас на уме?\n"
 				"Ответим не медленно и не быстро, а может и не ответим. Да."
     )
+
+@router.message(Command("cas"))
+@log_activity
+async def cmd_cas(message: types.Message):
+    try:
+        response = await cas_gen.generate_cas_info()
+        await message.answer(response, parse_mode="HTML")
+    except Exception as e:
+        logger.error(f"CAS error: {str(e)}")
+        await message.answer("🌀 Реактив самоуничтожился!")
