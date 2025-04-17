@@ -1,6 +1,7 @@
 from aiogram import Bot, Router, types, F
 from aiogram.fsm.context import FSMContext
 from states.user_states import UserState
+#from states.user_states import UserStates
 from generators.visual import generate_pseudoscience_chart
 from generators.text import generate_thought
 from generators.chemical import generate_iupac_name
@@ -19,7 +20,7 @@ import random
 import asyncio
 from random import choice
 from core.bot_instance import get_bot
-from states.user_states import user_state
+from states.user_states import user_state, feedback_state
 #from aiogram.enums import ParseMode
 import logging
 logger = logging.getLogger(__name__)
@@ -210,3 +211,13 @@ async def send_future_dada(message: types.Message):
 @router.message(Command("test_horoscope"))
 async def test_send(message: types.Message):
     await send_daily_horoscope()
+		
+@router.message(Command("feedback"))
+@log_activity
+async def start_quantum_dialog(message: types.Message, state: FSMContext):
+    await state.set_state(feedback_state.quantum_feedback)
+    await state.update_data(translation_depth=1)
+    await message.answer(
+        "🌀 Дада у дадафона. Дадавите\n"
+        "⚠️ Каждое следующее сообщение будет усиливать эффект!"
+    )

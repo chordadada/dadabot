@@ -1,6 +1,10 @@
 import time
 import random
 from utils.helpers import random_emojis
+from aiogram.fsm.state import State, StatesGroup
+
+class UserStates(StatesGroup):
+    quantum_feedback = State()
 
 class UserState:
     def __init__(self):
@@ -88,3 +92,4 @@ class QuantumUser:
         }
 
 user_state = UserState()
+feedback_state = UserStates()

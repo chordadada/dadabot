@@ -11,6 +11,8 @@ class Settings(BaseSettings):
     # Основные настройки
     BOT_TOKEN: str = Field(..., env="BOT_TOKEN")
     ADMIN_IDS: List[int] = Field(default_factory=list, env="ADMIN_IDS")
+    TRANSLATION_KEY: str = Field("", env="TRANSLATION_KEY")  # Для MyMemory API
+    MAX_CHAOS_LEVEL: int = Field(10, env="MAX_CHAOS_LEVEL")
     IMGUR_CLIENT_ID: str = Field("", env="IMGUR_CLIENT_ID")
     NASA_API_KEY: str = Field("", env="NASA_API_KEY")
     # Настройки логирования
