@@ -12,7 +12,7 @@ from datetime import datetime
 from utils.database import add_to_mailing_list
 from generators.image_provider import get_image
 from utils.keyboards import get_main_keyboard
-from utils.helpers import random_emojis
+from utils.helpers import random_emojis, dadamizer
 from aiogram.types import FSInputFile
 from aiogram.filters import Command
 from utils.decorators import log_activity
@@ -218,6 +218,6 @@ async def start_quantum_dialog(message: types.Message, state: FSMContext):
     await state.set_state(feedback_state.quantum_feedback)
     await state.update_data(translation_depth=1)
     await message.answer(
-        "🌀 Дада у дадафона. Дадавите\n"
-        "⚠️ Каждое следующее сообщение будет усиливать эффект!"
+        "⚠️ Дада у дадафона. Что у вас на уме?\n"
+				"Ответим не медленно и не быстро, а может и не ответим. Да."
     )

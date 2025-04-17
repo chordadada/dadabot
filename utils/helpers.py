@@ -3,6 +3,53 @@ from typing import Literal
 
 EmojiSet = Literal["space", "science", "magic", "nature", "tech", "random"]
 
+def dadamizer(text: str, chaos_level: int = 1) -> str:
+    """
+    Искажает текст в дадаистическом стиле с HTML-форматированием.
+    
+    :param text: исходный текст
+    :param chaos_level: уровень хаоса (1-5)
+    :return: модифицированный текст с эмодзи и форматированием
+    """
+    words = text.split()
+    modified = []
+    chaos_prob = chaos_level * 0.15
+    
+    for i, word in enumerate(words):
+        # HTML-форматирование
+        if random.random() < chaos_prob:
+            formats = [
+                lambda x: f"<b>{x}</b>",    # Жирный
+                lambda x: f"<i>{x}</i>",    # Курсив
+                lambda x: f"<s>{x}</s>",    # Зачёркнутый
+                lambda x: x.upper(),        # ВЕРХНИЙ РЕГИСТР
+                lambda x: x[::-1],          # Перевёрнутое
+            ]
+            word = random.choice(formats)(word)
+        
+        # Случайные символы (без угловых скобок)
+        if random.random() < chaos_prob/2:
+            additions = [
+                random.choice(["⁂", "※", "⁑"]),
+                random.choice(["•", "◦", "‣"])
+            ]
+            word = random.choice(additions) + word if i%2 == 0 else word + random.choice(additions)
+        
+        modified.append(word)
+    
+    # Вставка эмодзи
+    emoji_count = min(chaos_level + 1, 5)
+    emojis = random_emojis(emoji_count, emoji_set="magic", allow_duplicates=True)
+    
+    # Собираем результат
+    result = []
+    for i, word in enumerate(modified):
+        result.append(word)
+        if random.random() < chaos_prob * 0.7:
+            result.append(random.choice(emojis.split()))
+    
+    return ' '.join(result)
+
 def random_emojis(
     count: int, 
     emoji_set: EmojiSet = "random",

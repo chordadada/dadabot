@@ -7,7 +7,7 @@ from generators.chemical import generate_iupac_name
 from generators.text import generate_thought
 from generators.visual import generate_pseudoscience_chart
 from states.user_states import UserState
-from utils.helpers import random_emojis
+from utils.helpers import random_emojis, dadamizer
 from utils.decorators import log_activity
 from utils.database import add_to_mailing_list
 from states.user_states import user_state, feedback_state
@@ -26,8 +26,9 @@ async def handle_quantum_feedback(message: types.Message, state: FSMContext):
     user_data = await state.get_data()
     depth = user_data.get('translation_depth', 1)
     
-    translated = await translator.quantum_translate(message.text, depth)
-    await message.answer(translated)
+    translated_d = await translator.quantum_translate(message.text, depth)
+    translated = dadamizer(translated_d, chaos_level=2)
+    await message.answer(f"{translated}", parse_mode="HTML")
     
     if depth >= translator.max_depth:
         await message.answer(
