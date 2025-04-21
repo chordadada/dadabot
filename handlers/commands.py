@@ -33,7 +33,6 @@ logger = logging.getLogger(__name__)
 # dadart - Порция из куста
 # dadascope - Предсказание из антиматери
 # dadascope_daily - Подписка на Дадаскоп
-# dadafuturism - Пальпация прошлого
 # dadaphone - Отправить сообщение в никуда
 # help - Зачем это всё
 
@@ -154,7 +153,6 @@ async def cmd_help(message: types.Message):
         "→ /dadart - Получить дадъект\n"
         "→ /dadascope - Прозреть дадаскоп\n"
         "→ /dadascope_daily - Подписаться на\n"
-        "→ /dadafuturism - Хрустальный сосут\n"
         "→ /dadaphone - Квантовый дадаводчик\n"
         "→ /help - Хэлп\n\n"
         "<i>Просто пиши ДаДа — система дадапсирует!</i>"
@@ -198,20 +196,7 @@ async def send_cosmic_dada(message: types.Message):
             reply_markup=get_main_keyboard()
         )
         logger.error(f"Квантовая ошибка: {str(e)}")
-        
-@router.message(Command("dadafuturism"))
-async def send_future_dada(message: types.Message):
-    videos = [
-        "https://t.me/chordadada/123",
-        "https://t.me/chordadada/456"
-    ]
-    caption = random.choice([
-        "Вот, что тебя ждёт!",
-        "Берегись этого!",
-        "Твоё будущее уже здесь!"
-    ])
-    await message.answer_video(random.choice(videos), caption=caption)
-    
+           
 @router.message(Command("dadascope"))
 async def dadascope_handler(message: types.Message):
     user_id = message.from_user.id
