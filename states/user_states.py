@@ -13,9 +13,9 @@ class UserState:
         self.entangled_pairs = []
         self.achievements = {
         'quantum_rebel': False,
+				'last_dadascope': None,
         'paradox_master': False
         }
-        #self.ghost_emoji = "👻"
         self.ghost_data = {
             "current_emoji": "👻",
             "visibility": True
@@ -46,13 +46,6 @@ class UserState:
         if user_id not in self.message_history:
             self.message_history[user_id] = []
         self.message_history[user_id].append(message)
-
-    # def update_message_history(self, user_id: int, message: str, max_history=5):
-        # """Хранит только последние 5 сообщений"""
-        # if user_id not in self.message_history:
-          # self.message_history[user_id] = []
-        # self.message_history[user_id].append(message)
-        # self.message_history[user_id] = self.message_history[user_id][-max_history:]
 			
     def get_message_history(self, user_id: int) -> list:
         """Возвращает все сохраненные сообщения"""

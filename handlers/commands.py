@@ -13,12 +13,14 @@ from datetime import datetime
 from utils.database import add_to_mailing_list
 from generators.image_provider import get_image
 from utils.keyboards import get_main_keyboard
-from utils.helpers import random_emojis, dadamizer
+from utils.helpers import random_emojis, dadamizer, format_cooldown
 from aiogram.types import FSInputFile
 from aiogram.filters import Command
 from utils.decorators import log_activity
 import random
 import asyncio
+import time
+from datetime import timedelta
 from random import choice
 from core.bot_instance import get_bot
 from states.user_states import user_state, feedback_state
@@ -29,10 +31,10 @@ logger = logging.getLogger(__name__)
 #Список для ботфазера
 # start - Пси и Хи
 # dadart - Порция из куста
-# eternaldada - Вечное сияние дада
-# horoscope - Предсказание из антиматери
-# feedback - Отправить сообщение в никуда
-# antimanual - Самоуничтожающаяся инструкция
+# dadascope - Предсказание из антиматери
+# dadascope_daily - Подписка на Дадаскоп
+# dadafuturism - Пальпация прошлого
+# dadaphone - Отправить сообщение в никуда
 # help - Зачем это всё
 
 router = Router()
@@ -42,7 +44,7 @@ router = Router()
 async def cmd_start(message: types.Message, state: FSMContext):
     await message.answer("Вы согласны с тем, что ничего не согласны?", reply_markup=get_main_keyboard())
     logger.info(f"🌀 Пользователь {message.from_user.id} начал квантовый диалог")
-		
+    
 @router.message(F.text == "Кот Шрёдингера")
 async def quantum_cat(message: types.Message):
     state = random.choice(["жив", "мёртв"])
@@ -59,21 +61,21 @@ async def explosion(message: types.Message):
     await message.answer("💥 *тишина*")
     await asyncio.sleep(3)
     await message.answer("Сюрприз! Взрыв был метафорой.", reply_markup=get_main_keyboard())
-	
-@router.message(Command("horoscope"))
+  
+@router.message(Command("dadascope_daily"))
 async def cmd_horoscope(message: types.Message):
     user_id = message.from_user.id
     state = user_state.get_state(user_id)
     state["horoscope_mode"] = True
     state["horoscope_attempts"] = 0  # Сброс счетчика попыток
     await message.answer(
-        "🌀 Нажмите 'Да' чтобы квантово подписаться на гороскопы!\n"
+        "🌀 Нажмите 'Да' чтобы квантово подписаться на дадаскопы!\n"
         "Успех не гарантирован!",
         reply_markup=get_main_keyboard()
     )
 
 async def send_daily_horoscope():
-    """Ежедневная рассылка гороскопов подписчикам"""
+    """Ежедневная рассылка дадаскопов подписчикам"""
     from core.bot_instance import get_bot
     from utils.database import mailing_list
     from generators.horoscope import generate_horoscope
@@ -93,9 +95,9 @@ async def send_daily_horoscope():
                 chat_id=user_id,
                 text=text,
                 disable_notification=True,  # Тихая отправка
-								parse_mode="HTML"
+                parse_mode="HTML"
             )
-            logger.info(f"✓ Гороскоп отправлен для {user_id}")
+            logger.info(f"✓ дадаскоп отправлен для {user_id}")
             
         except Exception as e:
             logger.error(f"✕ Ошибка для {user_id}: {str(e)}")
@@ -112,51 +114,53 @@ async def send_art(message: types.Message):
             return
 
         caption = (
-            f"<b>🌀 {title}</b>\n"
-            f"💶 Оценочная стоимость: {random.randint(1000, 1000000)} евро\n"
-            f"📰 Комментарий критикессы: <i>{generate_thought()}</i>"
+            f"<b>{random_emojis(1)} {title}</b>\n"
+            f"{random_emojis(1)} Оценочная стоимость: {random.randint(1, 10000000)} евро\n"
+            f"{random_emojis(1)} Комментарий критикессы: <i>{generate_thought(author = False)}</i>"
         )
 
         if media_url.endswith(('.mp4', '.webm', '.gifv', '.gif')):
             await message.answer_animation(
                 media_url,
                 caption=caption[:1024],  # Ограничение Telegram на 1024 символа
-								parse_mode="HTML",
-								reply_markup=get_main_keyboard()
+                parse_mode="HTML",
+                reply_markup=get_main_keyboard()
             )
         else:
             await message.answer_photo(
                 media_url,
                 caption=caption[:1024],
-								parse_mode="HTML",
-								reply_markup=get_main_keyboard()
+                parse_mode="HTML",
+                reply_markup=get_main_keyboard()
             )
 
     except Exception as e:
         await message.answer("Арт-объект самоуничтожился при передаче 🕳️", reply_markup=get_main_keyboard())
         logger.error(f"Ошибка отправки: {str(e)}", exc_info=True)
-	
+  
 @router.message(F.text == "Поговори сам с собой")
 async def self_chat(message: types.Message):
     for _ in range(3):
         await message.answer(generate_thought())
         await asyncio.sleep(1)
     await message.answer("Диалог окончен. Вы проиграли.", reply_markup=get_main_keyboard())
-		
+    
 @router.message(Command("help"))
 @log_activity
 async def cmd_help(message: types.Message):
     help_text = (
-        "🌀 <b>Руководство по квантовому безумию:</b>\n\n"
-        "→ /start - Начать диалог\n"
-        "→ /dadart - Получить арт-объект\n"
-        "→ /horoscope - Гороскоп-провокация\n"
-        "→ /futuredada - Видео из будущего\n"
-        "→ /feedback - Квантовый переводчик\n\n"
-        "<i>Просто пиши что угодно — система коллапсирует!</i>"
+        f"{random_emojis(1)} <b>Руководство по хордададаизации:</b>\n\n"
+        "→ /start - Начать дадалог\n"
+        "→ /dadart - Получить дадъект\n"
+        "→ /dadascope - Прозреть дадаскоп\n"
+        "→ /dadascope_daily - Подписаться на\n"
+        "→ /dadafuturism - Хрустальный сосут\n"
+        "→ /dadaphone - Квантовый дадаводчик\n"
+        "→ /help - Хэлп\n\n"
+        "<i>Просто пиши ДаДа — система дадапсирует!</i>"
         )
     await message.answer(help_text, parse_mode="HTML", reply_markup=get_main_keyboard())
-		
+    
 @router.message(Command("eternaldada"))
 @log_activity
 async def send_cosmic_dada(message: types.Message):
@@ -180,9 +184,9 @@ async def send_cosmic_dada(message: types.Message):
                 media_url,
                 f"⚡ АРТ-РЕЛИКТ №{random.randint(10**12, 10**18)}\n\n"
                 f"Оценочная стоимость: {price}\n"
-                f"Вердикт Совета Бессмертных: {verdict}\n\n"
+                f"Мнение Человечицы: {verdict}\n\n"
                 f"<tg-spoiler>📜 {cosmic_description}</tg-spoiler>",
-								reply_markup=get_main_keyboard()
+                reply_markup=get_main_keyboard()
             )
 
     except Exception as e:
@@ -191,11 +195,11 @@ async def send_cosmic_dada(message: types.Message):
             "Космический вакуум поглотил артефакт\n\n"
             "▫️▫️▫️▫️▫️▫️▫️▫️\n"
             "Это и есть высшая форма искусства",
-						reply_markup=get_main_keyboard()
+            reply_markup=get_main_keyboard()
         )
         logger.error(f"Квантовая ошибка: {str(e)}")
-				
-@router.message(Command("futuredada"))
+        
+@router.message(Command("dadafuturism"))
 async def send_future_dada(message: types.Message):
     videos = [
         "https://t.me/chordadada/123",
@@ -207,20 +211,33 @@ async def send_future_dada(message: types.Message):
         "Твоё будущее уже здесь!"
     ])
     await message.answer_video(random.choice(videos), caption=caption)
-		
-# Временный код для теста (добавить в commands.py)
-@router.message(Command("test_horoscope"))
-async def test_send(message: types.Message):
+    
+@router.message(Command("dadascope"))
+async def dadascope_handler(message: types.Message):
+    user_id = message.from_user.id
+    state = user_state.get_state(user_id)
+    current_time = time.time()
+    
+    if state.get('last_dadascope') and (current_time - state['last_dadascope'] < 86400):
+        remaining = 86400 - (current_time - state['last_dadascope'])
+        await message.answer(
+            f"{random_emojis(1)} Дадагмат перезаряжается!\n"
+            f"До следующего дадаскопа: {format_cooldown(int(remaining))}"
+        )
+        return
+    
+    state['last_dadascope'] = current_time
     await send_daily_horoscope()
-		
-@router.message(Command("feedback"))
+    logger.info(f"Дадаскоп отправлен пользователю {user_id}")
+    
+@router.message(Command("dadaphone"))
 @log_activity
 async def start_quantum_dialog(message: types.Message, state: FSMContext):
     await state.set_state(feedback_state.quantum_feedback)
     await state.update_data(translation_depth=1)
     await message.answer(
-        "⚠️ Дада у дадафона. Что у вас на уме?\n"
-				"Ответим не медленно и не быстро, а может и не ответим. Да."
+        f"{random_emojis(1)} Дада у дадафона. Что у вас на уме?\n"
+        f"Ответим не медленно и не быстро, а может и не ответим. Да."
     )
 
 @router.message(Command("cas"))
@@ -228,7 +245,7 @@ async def start_quantum_dialog(message: types.Message, state: FSMContext):
 async def cmd_cas(message: types.Message):
     try:
         response = await cas_gen.generate_cas_info()
-        await message.answer(response, parse_mode="HTML")
+        await message.answer(response)
     except Exception as e:
         logger.error(f"CAS error: {str(e)}")
         await message.answer("🌀 Реактив самоуничтожился!")

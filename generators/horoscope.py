@@ -1,7 +1,7 @@
 import aiohttp
 import random
 from generators.chemical import generate_iupac_name
-from utils.helpers import random_emojis
+from utils.helpers import random_emojis, dadamizer
 from aiogram.utils.text_decorations import html_decoration as hd
 from generators.translator import translator
 
@@ -24,9 +24,9 @@ async def generate_horoscope(user_id: int) -> str:
     today = random.choice([" судьбы", " дня", " дна", " знай", ", нах", ""])
     emoset = random.choice(["space", "science", "magic", "nature", "tech", "random"])		
     return (
-        f"<b>🔮 Гороскоп для Дадаиста №{(user_id % 10000)**2}</b>\n\n"
+        f"<b>🔮 Дадаскоп для Дадаиста №{(user_id % 10000)**2}</b>\n\n"
         f"🌪 Знаки{today}: <tg-spoiler>{' '.join(random_emojis(5, emoset))}</tg-spoiler>\n\n"
-        f"<b>📜 Расшифровка:</b>\n{hd.quote(prediction)}\n\n"
+        f"<b>📜 Расшифровка:</b>\n{(dadamizer(text=prediction, chaos_level=1))}\n\n"
         f"⚠️ <b>ИЗБЕГАЙТЕ:</b>\n<code>{hd.quote(formula)}</code>\n\n"
         f"🌀 <i>Уровень хаоса: {random.randint(1, 100)}%</i>"
     )

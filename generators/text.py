@@ -3,7 +3,7 @@ import json
 import logging
 logger = logging.getLogger(__name__)
 
-def generate_thought():
+def generate_thought(author = True):
     try:
         with open('data/phrases.json', 'r', encoding='utf-8') as f:
             phrases = json.load(f)
@@ -30,15 +30,20 @@ def generate_thought():
 
     # Генерация структуры мысли
     try:
-        structure = random.choice([
-            ["intro", "noun", "verb", "concept"],
-            ["quote", "author", "absurd_comment"]
-        ])
+        if author:
+            structure = random.choice([
+                ["intro", "noun", "verb", "concept"],
+                ["quote", "author", "absurd_comment"]
+            ])
+        else:
+            structure = random.choice([
+                ["intro", "noun", "verb", "concept"]
+            ])
         result = ' '.join([random.choice(phrases[key]) for key in structure])
         logger.info(f"Сгенерирована мысль: {result[:50]}...")
         return result
     except Exception as e:
         logger.error(f"💥 Критическая ошибка: {e}")
         return "Мысль исчезла в сингулярности"
-		
+    
     

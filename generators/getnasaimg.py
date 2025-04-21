@@ -31,8 +31,12 @@ async def get_nasa_eternal_image():
                     if data.get("media_type") != "image":
                         return random.choice(FALLBACK_IMAGES)
 
-                    title = f"{random.choice(['Трансцендентальное', 'Квантовое', 'Абсурдное'])} {random.choice(['видение', 'откровение', 'нечто'])}"
-                    description = f"{title}\n\n{random.choice(['Этот свет шёл к тебе миллионы лет', 'Пыль взорвавшихся звёзд в твоих глазах', 'Застывший момент вечности', 'Свидетельство непостижимого'])}\n"
+                    gender = random.choice(phrases["genders"])
+                    adj = random.choice(phrases["adjectives"][gender])
+                    noun = random.choice(phrases["nouns"][gender])
+                    template = random.choice(phrases["templates"][gender])
+                    title = template.format(adj=adj, noun=noun)
+                    description = f"{title}\n"
 
                     return data.get("hdurl") or data.get("url"), description
 

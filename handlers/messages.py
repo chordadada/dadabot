@@ -34,7 +34,7 @@ async def handle_quantum_feedback(message: types.Message, state: FSMContext):
         await message.answer(
               "⚠️ Хлипкая нить понимания оборвалась!\n"
               "Обращайтесь по адресу: г. Минск, ул. К. Маркса, 38.\n"
-							"Успехов и в добрый путь! 🚨", reply_markup=get_main_keyboard()
+              "Успехов и в добрый путь! 🚨", reply_markup=get_main_keyboard()
           )
         await state.clear()
     else:
@@ -91,16 +91,19 @@ async def handle_text(message: types.Message):
         await message.answer("🌀 Сейчас активна квантовая подписка на гороскоп. Используйте кнопки 'ДАДА'.",
         reply_markup=get_main_keyboard())
         return
-    await message.answer("🌀 Только кнопки 'Да' имеют силу в этом измерении!",
+    await message.answer("🌀 Всегда говори ДаДа!",
     reply_markup=get_main_keyboard())
 
 async def send_regular_response(message: types.Message, state: dict):
-    response = (
-        f"{generate_thought()}\n"
-        f"🧪 Реактив: {generate_iupac_name()}\n"
-        f"⚛️ Уровень абсурда: {state.get('banality_level', 0)}\n"
-        f"{random_emojis(3)}"
+    user_progress = random.random()
+    if user_progress > 0.75:
+        response = (
+        f"{random.choice(["Заруби себе на носу!", "Напутствие на сегодня:", "Дадаист, Помни!", "Дружок-старичок передаёт:", "Важно знать!"])}\n"
+        f"{dadamizer(generate_thought(), chaos_level = 3)}\n"
+        f"ДАДА подтекст: {random_emojis(random.randint(1, 10))}\n"
     )
+    else:
+        response = " ".join(dadamizer(random.choice(DA_VARIANTS), chaos_level=4) for _ in range(random.randint(1, 7)))
     await message.answer(response, reply_markup=get_main_keyboard())
 
 async def trigger_quantum_collapse(message: types.Message):

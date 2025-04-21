@@ -1,5 +1,10 @@
 import random
 from typing import Literal
+from datetime import timedelta
+
+def format_cooldown(seconds: int) -> str:
+    """Форматирует время в ЧЧ:ММ:СС"""
+    return str(timedelta(seconds=seconds)).split(".")[0]
 
 EmojiSet = Literal["space", "science", "magic", "nature", "tech", "random"]
 
@@ -39,7 +44,7 @@ def dadamizer(text: str, chaos_level: int = 1) -> str:
     
     # Вставка эмодзи
     emoji_count = min(chaos_level + 1, 5)
-    emojis = random_emojis(emoji_count, emoji_set="magic", allow_duplicates=True)
+    emojis = random_emojis(emoji_count, emoji_set=random.choice([EmojiSet]), allow_duplicates=True)
     
     # Собираем результат
     result = []

@@ -1,6 +1,7 @@
 import aiohttp
 import random
 import logging
+import json
 logger = logging.getLogger(__name__)
 
 FALLBACK_IMAGES = [
@@ -8,6 +9,12 @@ FALLBACK_IMAGES = [
     ("https://i.imgur.com/M3NZpUA.jpeg", "Абстрактная композиция"),
     ("https://i.imgur.com/TUXzEH3.jpeg", "Революция форм")
 ]
+
+try:
+    with open('data/phrases.json', 'r', encoding='utf-8') as f:
+        phrases = json.load(f)
+except FileNotFoundError:
+    raise Exception("Файл phrases.json не найден в папке data!")
 
 async def get_random_wiki_image():
     try:
@@ -43,14 +50,12 @@ async def get_random_wiki_image():
                 image_info = chosen["imageinfo"][0]
                 original_url = image_info["url"]
 
-                title = f"{random.choice(['Трансцендентное', 'Кашемировое', 'Ржавое'])} {random.choice(['изваяние', 'фиаско', 'семя знахарки'])}"
-                art_phrases = [
-                    "Непорочное, как само искусство",
-                    "Шокарует ли? Отнюдь!",
-                    "Бокал игристого!",
-                    "Печаль и боль — вот мой пароль"
-                ]
-                description = f"{title}\n\n{random.choice(art_phrases)}\n"
+                gender = random.choice(phrases["genders"])
+                adj = random.choice(phrases["adjectives"][gender])
+                noun = random.choice(phrases["nouns"][gender])
+                template = random.choice(phrases["templates"][gender])
+                title = template.format(adj=adj, noun=noun)
+                description = f"{title}\n"
 
                 return original_url, description
 
