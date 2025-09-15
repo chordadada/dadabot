@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     BOT_TOKEN: str = Field(..., env="BOT_TOKEN")
     ADMIN_IDS: List[int] = Field(default_factory=list, env="ADMIN_IDS")
     TRANSLATION_KEY: str = Field("", env="TRANSLATION_KEY")  # Для MyMemory API
-    MAX_CHAOS_LEVEL: int = Field(10, env="MAX_CHAOS_LEVEL")
+    MAX_CHAOS_LEVEL: int = Field(100, env="MAX_CHAOS_LEVEL")
     IMGUR_CLIENT_ID: str = Field("", env="IMGUR_CLIENT_ID")
     NASA_API_KEY: str = Field("", env="NASA_API_KEY")
     # Настройки логирования
@@ -27,7 +27,6 @@ class Settings(BaseSettings):
     RESET_TIMEOUT: int = Field(300, env="RESET_TIMEOUT")
     QUANTUM_CHANCE: float = Field(0.15, env="QUANTUM_CHANCE")
     INLINE_ENABLED: bool = True
-    MAX_CHAOS_LEVEL: int = 100
 		
     @validator("ADMIN_IDS", pre=True)
     def split_admin_ids(cls, v):

@@ -100,7 +100,6 @@ async def send_regular_response(message: types.Message, state: dict):
         response = (
         f"{random.choice(["Заруби себе на носу!", "Напутствие на сегодня:", "Дадаист, Помни!", "Дружок-старичок передаёт:", "Важно знать!"])}\n"
         f"{dadamizer(generate_thought(), chaos_level = 3)}\n"
-        f"ДАДА подтекст: {random_emojis(random.randint(1, 10))}\n"
     )
     else:
         response = " ".join(dadamizer(random.choice(DA_VARIANTS), chaos_level=4) for _ in range(random.randint(1, 7)))
