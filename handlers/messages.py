@@ -109,8 +109,10 @@ async def trigger_quantum_collapse(message: types.Message):
     user_id = message.from_user.id
     chart_path = generate_pseudoscience_chart(user_id)
     emojis = random_emojis(5, emoji_set="space")
-    await message.answer_photo(FSInputFile(chart_path),
-    f"🌀 Квантовый коллапс! {emojis}", reply_markup=get_main_keyboard())
+    await message.answer_photo(
+		photo=FSInputFile(chart_path),
+    caption=f"🌀 Квантовый коллапс! {emojis}",
+		reply_markup=get_main_keyboard())
     user_state.get_state(user_id).update({
         'collapse_chance': 0.1,
         'banality_level': 0
